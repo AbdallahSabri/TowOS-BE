@@ -20,7 +20,10 @@ export default tseslint.config(
       import: importPlugin,
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/explicit-function-return-type': 'off',
       'import/no-cycle': 'error',
       'import/no-self-import': 'error',
@@ -31,6 +34,15 @@ export default tseslint.config(
           project: './tsconfig.json',
         },
       },
+    },
+  },
+  {
+    // Jest's asymmetric matchers (expect.any, expect.stringMatching, ...) are
+    // typed `any` by design; type-checked lint rules can't see through them.
+    files: ['**/*.spec.ts', '**/*.e2e-spec.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
     },
   },
 );
