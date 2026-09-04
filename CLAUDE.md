@@ -61,7 +61,9 @@ npm run lint:boundaries     # dependency-cruiser — enforces the §6 module bou
 npm run format               # prettier --write
 ```
 
-`npm test` requires a real Postgres reachable at `DATABASE_URL`/`DATABASE_MIGRATION_URL` (defaults in `test/jest.setup.ts` point at `docker-compose.test.yml`'s instance on port 5433 — `docker compose -f docker-compose.test.yml up -d` once, then `npm test`). AppModule boots a real DB connection via `TenantModule` now, so this isn't optional. Jest's `globalSetup` (`test/global-setup.js`) applies pending migrations before the suite runs.
+`npm test` requires a real Postgres, Redis, and RabbitMQ reachable at `DATABASE_URL`/`DATABASE_MIGRATION_URL`/`REDIS_URL`/`RABBITMQ_URL` (defaults in `test/jest.setup.ts` point at `docker-compose.test.yml`'s instances on ports 5433/6380/5673 — `docker compose -f docker-compose.test.yml up -d` once, then `npm test`). AppModule boots real DB/Redis connections via `TenantModule`/`IdempotencyModule`, and the outbox relay tests boot `WorkerModule` (real RabbitMQ), so none of this is optional. Jest's `globalSetup` (`test/global-setup.js`) applies pending migrations before the suite runs.
+
+RabbitMQ 4.3 rejects amqplib's default `frame_max` (4096 < its enforced minimum of 8192) — `messaging/rabbit.ts`'s `connectRabbit()` sets it via the connection URL's query string (not `connect()`'s second argument, which is unrelated socket options). Any new direct `amqp.connect()` call (tests included) needs the same fix or the connection silently fails with "Socket closed abruptly during opening handshake."
 
 ## When to stop and ask instead of proceeding
 
