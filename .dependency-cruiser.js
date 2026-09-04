@@ -140,6 +140,47 @@ export default {
       from: { path: '^src/modules/' },
       to: { path: '^src/database/migrations/' },
     },
+    // --- BE-SPEC §13: cut-scope guards ---
+    {
+      name: 'no-notification-sdks',
+      severity: 'error',
+      comment:
+        'No SMS/email/push SDK (BE-SPEC §13 / §8.5): TowOS has no notifications in this phase. ' +
+        'If one of these is a genuine dependency of something else, it needs a scope conversation, ' +
+        'not a workaround here.',
+      from: { path: '^src/' },
+      to: {
+        path: [
+          '^twilio',
+          '^nexmo',
+          '^@vonage/',
+          '^plivo',
+          '^messagebird',
+          '^nodemailer',
+          '^@sendgrid/',
+          '^mailgun',
+          '^postmark',
+          '^@aws-sdk/client-ses',
+          '^@aws-sdk/client-sns',
+          '^firebase-admin',
+          '^web-push',
+          '^onesignal',
+          '^expo-server-sdk',
+          '^apn$',
+          '^node-pushnotifications',
+        ],
+      },
+    },
+    {
+      name: 'no-scheduler-imports',
+      severity: 'error',
+      comment:
+        'No scheduler, anywhere (CLAUDE.md invariant #10 / BE-SPEC §13): everything Swoop-related ' +
+        'is dispatcher-triggered (ADR-012). Bare setInterval calls are caught separately by ' +
+        "eslint's no-restricted-globals rule (setInterval isn't an import).",
+      from: { path: '^src/' },
+      to: { path: ['^@nestjs/schedule', '^node-cron', '^node-schedule', '^cron$', '^agenda$'] },
+    },
     {
       name: 'common-tenant-internals-are-private',
       severity: 'error',

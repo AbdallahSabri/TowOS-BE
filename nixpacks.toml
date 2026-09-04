@@ -1,0 +1,23 @@
+# BE-SPEC §3: "No Dockerfile in this repo. Coolify builds it. Set the Node
+# version explicitly through Nixpacks configuration so the build does not
+# drift to whatever the builder defaults to." Nixpacks would otherwise infer
+# a Node version from package.json's "engines.node" ("24.x") on its own -
+# this pins it explicitly and redundantly, so a Nixpacks version bump that
+# changes that inference can't silently change what ships.
+[phases.setup]
+nixPkgs = ['nodejs_24']
+
+[phases.install]
+cmds = ['npm ci']
+
+[phases.build]
+cmds = ['npm run build']
+
+[start]
+# Default start command for this Coolify application - the API
+# deployable. The worker is a SEPARATE Coolify application built from the
+# same repo/branch/image, with its own Start Command overridden to
+# `npm run worker` in that application's settings (BE-SPEC §5: "Two
+# deployables, one repo, one image... Coolify runs the same build with a
+# different start command"). See docs/deploy.md.
+cmd = 'npm run start'

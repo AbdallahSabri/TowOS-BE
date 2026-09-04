@@ -4,6 +4,7 @@
 # build output
 /dist
 /.jest-boot-probe
+/.jest-log-scan-probe
 
 # testing
 /coverage

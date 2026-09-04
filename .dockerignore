@@ -1,0 +1,16 @@
+# Nixpacks builds via a generated Dockerfile and respects this file (BE-SPEC
+# §3: "No Dockerfile in this repo. Coolify builds it.") - without it, a
+# stray local dist/ (with its tsconfig.tsbuildinfo *file*) gets copied into
+# the build context and collides with Nixpacks' auto-generated build-cache
+# *mount* at that same path ("not a directory"), confirmed by reproducing
+# it with a real `nixpacks build` locally.
+node_modules
+dist
+.git
+.jest-boot-probe
+.jest-log-scan-probe
+coverage
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
