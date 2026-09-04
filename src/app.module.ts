@@ -4,6 +4,7 @@ import { AppConfigModule } from './common/config/config.module.js';
 import { LoggingModule } from './common/logging/logging.module.js';
 import { EnvelopeModule } from './common/envelope/envelope.module.js';
 import { ErrorsModule } from './common/errors/errors.module.js';
+import { IdempotencyModule } from './common/idempotency/idempotency.module.js';
 import { TenantModule } from './common/tenant/tenant.module.js';
 import { IdentityModule } from './modules/identity/identity.module.js';
 import { AppController } from './app.controller.js';
@@ -12,7 +13,12 @@ import { AppController } from './app.controller.js';
   imports: [
     AppConfigModule,
     LoggingModule,
+    // EnvelopeModule first: EnvelopeInterceptor wraps { data, meta,
+    // request_id } around whatever IdempotencyInterceptor emits, so an
+    // idempotency replay gets a fresh envelope (its own request_id) around
+    // the cached body, not a stale nested one - see idempotency.interceptor.ts.
     EnvelopeModule,
+    IdempotencyModule,
     ErrorsModule,
     TenantModule,
     IdentityModule,

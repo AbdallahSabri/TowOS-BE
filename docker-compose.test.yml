@@ -1,6 +1,5 @@
-# Local-only Postgres for `npm test`'s tenancy/RLS integration tests
-# (test/tenancy.integration-spec.ts, test/bypass-rls.integration-spec.ts).
-# Not part of the deploy pipeline (BE-SPEC §3: "No Dockerfile in this repo.
+# Local-only Postgres/Redis/RabbitMQ for the integration test suite. Not
+# part of the deploy pipeline (BE-SPEC §3: "No Dockerfile in this repo.
 # Coolify builds it.") - this is dev/test tooling only.
 #
 # Usage: docker compose -f docker-compose.test.yml up -d
@@ -21,3 +20,24 @@ services:
       interval: 2s
       timeout: 3s
       retries: 15
+
+  redis:
+    image: redis:8
+    ports:
+      - '6380:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  rabbitmq:
+    image: rabbitmq:4.3-management
+    ports:
+      - '5673:5672'
+      - '15673:15672'
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 2s
+      timeout: 5s
+      retries: 20
