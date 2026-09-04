@@ -39,7 +39,7 @@ export default tseslint.config(
   {
     // Jest's asymmetric matchers (expect.any, expect.stringMatching, ...) are
     // typed `any` by design; type-checked lint rules can't see through them.
-    files: ['**/*.spec.ts', '**/*.e2e-spec.ts'],
+    files: ['**/*.spec.ts', '**/*.e2e-spec.ts', '**/*.integration-spec.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',

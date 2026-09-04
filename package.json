@@ -12,6 +12,7 @@
     "start:dev": "nest start --watch",
     "worker": "node dist/worker.js",
     "worker:dev": "nest start --watch --entryFile worker",
+    "migration:run": "node dist/database/migrate.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",

@@ -10,7 +10,12 @@ export default {
     '^.+\\.ts$': ['ts-jest', { useESM: true }],
   },
   testEnvironment: 'node',
-  testMatch: ['<rootDir>/src/**/*.spec.ts', '<rootDir>/test/**/*.e2e-spec.ts'],
+  testMatch: [
+    '<rootDir>/src/**/*.spec.ts',
+    '<rootDir>/test/**/*.e2e-spec.ts',
+    '<rootDir>/test/**/*.integration-spec.ts',
+  ],
   setupFiles: ['<rootDir>/test/jest.setup.ts'],
+  globalSetup: '<rootDir>/test/global-setup.js',
   rootDir: '.',
 };

@@ -47,7 +47,21 @@ Every 2xx: `{ data, meta, request_id }`, built once by a global interceptor — 
 
 ## Commands
 
-Not yet defined — Phase 0 slice 1 sets these up. Once they exist, this section should list `npm run build`, `npm run test`, `npm run lint`, `npm run migration:run` verbatim so future sessions don't have to guess.
+```
+npm run build            # nest build -> dist/ (includes copying src/database/migrations/*.sql)
+npm run start             # node dist/main.js
+npm run start:dev         # nest start --watch
+npm run worker             # node dist/worker.js
+npm run worker:dev         # nest start --watch --entryFile worker
+npm run migration:run      # node dist/database/migrate.js — plain-SQL runner, uses DATABASE_MIGRATION_URL, never DATABASE_URL
+npm test                   # jest — needs a real reachable Postgres, see below
+npm run test:watch
+npm run lint                # eslint src/ test/
+npm run lint:boundaries     # dependency-cruiser — enforces the §6 module boundary rule
+npm run format               # prettier --write
+```
+
+`npm test` requires a real Postgres reachable at `DATABASE_URL`/`DATABASE_MIGRATION_URL` (defaults in `test/jest.setup.ts` point at `docker-compose.test.yml`'s instance on port 5433 — `docker compose -f docker-compose.test.yml up -d` once, then `npm test`). AppModule boots a real DB connection via `TenantModule` now, so this isn't optional. Jest's `globalSetup` (`test/global-setup.js`) applies pending migrations before the suite runs.
 
 ## When to stop and ask instead of proceeding
 
