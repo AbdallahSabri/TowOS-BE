@@ -141,22 +141,21 @@ export default {
       to: { path: '^src/database/migrations/' },
     },
     {
-      name: 'common-tenant-is-the-only-tenant-context-writer',
+      name: 'common-tenant-internals-are-private',
       severity: 'error',
       comment:
         'Tenant context is set in exactly one place (CLAUDE.md invariant 2): common/tenant/. ' +
-        'No other module may reimplement or bypass it by importing typeorm/pg session APIs directly ' +
-        'outside common/tenant and database/.',
+        'Other code may inject TenantService (tenant.service.ts) or import TenantModule ' +
+        '(tenant.module.ts) - that is the sanctioned way to run tenant-scoped queries - but may ' +
+        'not reach into tenant-context.storage.ts, tenant-id.ts, or assert-no-bypass-rls.ts ' +
+        'directly, which would make it possible to reimplement or bypass the SET LOCAL wrapper.',
       from: {
         path: '^src/(modules|common)/',
         pathNot: '^src/common/tenant/',
       },
       to: {
-        path: '^src/common/tenant/',
+        path: '^src/common/tenant/(?!tenant\\.service\\.ts$|tenant\\.module\\.ts$).+',
       },
-      // informational placeholder: real enforcement of "don't SET LOCAL elsewhere" is a grep/test
-      // concern (raw SQL string), not an import-graph concern. This rule only flags accidental
-      // reimport of tenant internals from outside common/tenant, keeping the boundary visible.
     },
   ],
   options: {

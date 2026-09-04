@@ -53,3 +53,25 @@ CREATE POLICY tenant_isolation ON sessions
 
 GRANT SELECT, INSERT, UPDATE ON users TO towos_app;
 GRANT SELECT, INSERT, UPDATE, DELETE ON sessions TO towos_app;
+
+-- Login can't establish a tenant context before it knows the tenant: the
+-- users table's own RLS policy requires current_tenant_id() to already be
+-- set, which is exactly what login is trying to discover from an email. The
+-- (tenant_id, email) unique index means the same email can legitimately
+-- exist under more than one tenant, so this returns every candidate tenant
+-- and the caller (auth.service.ts) tries each one's stored hash in turn,
+-- scoped normally through TenantService.run() from there on.
+--
+-- SECURITY DEFINER runs as this function's owner (the migration role, which
+-- is bypass-capable per BE-SPEC §7), not as towos_app - the one narrow,
+-- audited exception to "every table is RLS-scoped", per BE-SPEC §7.5's
+-- allowance for "an explicitly justified elevated role with a comment
+-- naming the reason". It returns tenant ids only, never a password hash or
+-- any other row data, so it isn't a broader RLS bypass than the one lookup
+-- it exists for.
+CREATE FUNCTION find_tenant_ids_for_email(p_email citext) RETURNS SETOF uuid
+LANGUAGE sql SECURITY DEFINER STABLE AS $$
+  SELECT tenant_id FROM users WHERE email = p_email AND is_active = true
+$$;
+REVOKE ALL ON FUNCTION find_tenant_ids_for_email(citext) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION find_tenant_ids_for_email(citext) TO towos_app;
